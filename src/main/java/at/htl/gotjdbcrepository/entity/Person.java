@@ -56,4 +56,24 @@ public class Person {
     public String toString() {
         return String.format("%s, %s, %s", name, city, house);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Person) {
+
+            Person p = (Person) o;
+            if (p.getName().equals(this.getName()) && p.getHouse().equals(this.getHouse()) && p.getCity().equals(this.getCity())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, city, house);
+    }
+
+
+
 }

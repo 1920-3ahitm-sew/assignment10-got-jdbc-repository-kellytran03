@@ -3,6 +3,7 @@ package at.htl.gotjdbcrepository.control;
 import at.htl.gotjdbcrepository.entity.Person;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,11 +17,15 @@ public class PersonRepository implements Repository {
     private static PersonRepository instance;
 
     private PersonRepository() {
+        createTable();
     }
 
     public static synchronized PersonRepository getInstance() {
 
-        return null;
+        if(instance == null) {
+            instance = new PersonRepository();
+        }
+        return instance;
     }
 
     private void createTable() {
@@ -73,8 +78,30 @@ public class PersonRepository implements Repository {
      * @return Rückgabe der Person inklusive der neu generierten ID
      */
     private Person insert(Person personToSave) {
+        try (Connection conn = DriverManager.getConnection(URL, USERNAME, PASSWORD)) {
+            try( PreparedStatement statement = conn.prepareStatement("INSERT INTO APP.PERSON (name,city,house) values (?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS)){
+                    String sql = "INSERT INTO person (name, city, house) VALUES (?,?,?)";
+                    PreparedStatement pstmt = conn.prepareStatement(sql);
+                    pstmt.setString(1, personToSave.getName());
+                    pstmt.setString(2, personToSave.getCity());
+                    pstmt.setString(3, personToSave.getHouse());
+                    pstmt.executeUpdate();
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+            if (generatedKeys.next()) {
+                personToSave.setId(generatedKeys.getLong(1));
+            } else {
+                throw new SQLException("Creating user failed, no ID obtained.");
+        }
+            }
+            }
 
-        return null;
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+
+        return personToSave;
+
     }
 
     /**
@@ -111,6 +138,12 @@ public class PersonRepository implements Repository {
      * @return Liste aller Personen des gegebenen Hauses
      */
     public List<Person> findByHouse(String house) {
+
+        List<Person> houseName = new ArrayList<>();
+
+
+
+
 
         return null;
     }
